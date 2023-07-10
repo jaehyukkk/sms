@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <div>
+        API Key: <input id="api-key" type="text" style="width:300px">
+        <input id="submit" type="button" value="Submit">
+    </div>
+    <div id="messages"></div>
+
+<script>
+    var websocket;
+    var apiKey = 'o.YrK5OTpPA3x0UUlPAC0yRnEhQcnGnRfG';
+    var submit = document.getElementById('submit');
+    var messages = document.getElementById('messages');
+
+    $(function () {
+        websocket = new WebSocket('wss://stream.pushbullet.com/websocket/' + apiKey);
+        websocket.onopen = function(e) {
+            messages.innerHTML += "<p>WebSocket onopen</p>";
+        }
+        websocket.onmessage = function(e) {
+            const res = JSON.parse(e.data);
+            if (res.type === 'push' && res.push.notifications.length) {
+                const notiArr = res.push.notifications;
+                const thread_id = [];
+                const sender = [];
+                const body = [];
+                const timestamp = [];
+                notiArr.forEach(n => {
+                    thread_id.push(n.thread_id);
+                    sender.push(n.title);
+                    body.push(n.body);
+                    timestamp.push(n.timestamp)
+                });
+
+                const data = {
+                    threadIdList: thread_id,
+                    bodyList: body,
+                    senderList: sender,
+                    timestampList: timestamp,
+                }
+
+                $.ajax({
+                    url: '/api/sms',
+                    method: 'post',
+                    data: JSON.stringify(data),
+                    contentType : "application/json; charset=utf-8",
+                }).done(res => {
+                    console.log(res);
+                }).fail(e => {
+                    console.log(e);
+                })
+
+            } else {
+                console.log(res);
+            }
+            messages.innerHTML += "<p>" + e.data + "</p>";
+        }
+        websocket.onerror = function(e) {
+            messages.innerHTML += "<p>WebSocket onerror</p>";
+        }
+        websocket.onclose = function(e) {
+            messages.innerHTML += "<p>WebSocket onclose</p>";
+        }
+    });
+</script>
+</body>
+</html>

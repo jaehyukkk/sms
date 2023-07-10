@@ -1,0 +1,23 @@
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        default_batch_fetch_size: '1000'
+        format_sql: 'true'
+    hibernate:
+      ddl-auto: update
+    show-sql: 'true'
+
+  thymeleaf:
+    prefix : classpath:templates/
+    suffix : .html
+    cache : false
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: 523108zz
+    username: root
+    url: jdbc:mysql://127.0.0.1:3306/sms?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+
+
